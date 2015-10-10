@@ -1,0 +1,44 @@
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+body > h1 {
+  font-size: 50px;
+  text-align: center;
+}
+
+.train-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.train {
+  min-width: 80px;
+  max-width: 120px;
+  width: 15%;
+  padding: 10px;
+  margin: 6px;
+  border: 1px solid lightgray;
+  box-shadow: 0 0 5px 1px lightgray;
+  border-radius: 5px;
+
+  h3 {
+    margin: 5px 0;
+    text-align: center;
+  }
+
+  p {
+    text-align: center;
+  }
+
+  &.late {
+    background-color: lightcoral;
+  }
+  &.on-schedule {
+    background-color: darkseagreen;
+  }
+  &.cancelled {
+    background-color: lightgray;
+  }
+}

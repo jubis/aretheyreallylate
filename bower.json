@@ -1,0 +1,23 @@
+{
+  "name": "trains",
+  "version": "0.0.0",
+  "authors": [
+    "Matias Saarinen <matiasj.saarinen@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bacon": "~0.7.71",
+    "jquery": "~2.1.4",
+    "bacon.jquery": "~0.4.12",
+    "momentjs": "~2.10.6",
+    "react": "~0.14.0",
+    "classnames": "~2.1.5"
+  }
+}
