@@ -1,6 +1,9 @@
 let Promise = require('bluebird')
 let request = require('request')
 let moment = require('moment')
+let bunyan = require('bunyan')
+
+let logger = bunyan.createLogger({name: 'Trains'})
 
 Promise.promisifyAll(request)
 
@@ -25,16 +28,22 @@ module.exports = {
 			})
 	},
 	trainStatusForAll: () => {
+		logger.info('Query API')
 		return request.getAsync(`${requestBase}/live-trains`)
 			.then((response) => {
+				logger.info('API query done')
 				let trainsData = JSON.parse(response[0].body)
-				return trainsData.map((data) => getTrainInfo(data, true))
+				logger.info(`${trainsData.length} trains to handle`)
+				let statuses = trainsData.map((data) => getTrainInfo(data, true))
+				logger.info('Train statuses ready')
+				return statuses
 			})
 	}
 }
 
 function getTrainInfo(fullData, excludeStations) {
 	let stations = getStationInfos(fullData)
+	//logger.info('Station infos ready')
 
 	let trainInfo = {
 		trainNumber: fullData.trainNumber,
