@@ -1,7 +1,7 @@
 var searches = new Bacon.Bus()
 
 let trainsData = searches
-	.map(trainNumber => `/train`)
+	.map(trainNumber => `/trainStatus`)
 	.log('path')
 	.map(path => { return {type:'GET', url: path} })
 	.log('request')

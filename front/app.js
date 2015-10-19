@@ -3,7 +3,7 @@
 var searches = new Bacon.Bus();
 
 var trainsData = searches.map(function (trainNumber) {
-	return '/train';
+	return '/trainStatus';
 }).log('path').map(function (path) {
 	return { type: 'GET', url: path };
 }).log('request').ajax().log('ajax');
