@@ -19,23 +19,34 @@ let Train = React.createClass({
 		let isOnSchdule = !isLate && info.hasDeparted
 
 		let late = ''
-		if(isLate) late = 'Late'
-		else if(info.hasDeparted) late = 'On schedule'
-		else if(info.cancelled) late = 'Cancelled'
-		else late = 'Hasn\'t departed yet'
+		if (info.willBeLate) late = 'Is late'
+		else if (info.wasLate) late = 'Was late'
+		else if (info.hasDeparted) late = 'On schedule'
+		else if (info.cancelled) late = 'Cancelled'
+
+		if (isLate) {
+			var maxLate = <p className='tight'>Late max {info.maxLate} mins</p>
+		}
 
 		let classes = classNames(
 			'train',
 			{late: isLate, 'on-schedule': isOnSchdule, 'cancelled': info.cancelled}
 		)
 
+		let nextStation = (!info.hasArrived && info.hasDeparted) ? <p>next: {info.station}</p> : ''
+		let arrivedOrNotDeparted = ''
+		if (info.hasArrived) arrivedOrNotDeparted = <p>Arrived to {info.arrStation}</p>
+		else if (!info.hasDeparted) arrivedOrNotDeparted = <p>Hasn't departed yet</p>
+
 		return (
 			<div className={classes}>
 				<h3>{info.type} {info.trainNumber}</h3>
-				<p>{info.depStation} - {info.arrStation}</p>
-				<p>{getTime(info.departs)} - {getTime(info.arrives)}</p>
-				<p>{info.station}</p>
-				<p>{late}</p>
+				<p className='tight'>{info.depStation} - {info.arrStation}</p>
+				<p className='tight'>{getTime(info.departs)} - {getTime(info.arrives)}</p>
+				{arrivedOrNotDeparted}
+				{nextStation}
+				<p className='tight'>{late}</p>
+				{maxLate}
 			</div>
 		)
 	}

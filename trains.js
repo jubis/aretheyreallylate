@@ -2,6 +2,7 @@ let Promise = require('bluebird')
 let request = require('request')
 let moment = require('moment')
 let bunyan = require('bunyan')
+let Bacon = require('baconjs')
 
 let logger = bunyan.createLogger({name: 'Trains'})
 
@@ -10,6 +11,8 @@ Promise.promisifyAll(request)
 let apiHost = 'rata.digitraffic.fi'
 let apiUriBase = '/api/v1/'
 let requestBase = `http://${apiHost}${apiUriBase}`
+
+let trainStatusForAllCache = null
 
 module.exports = {
 	trainInfoFor: (trainNumber) => {
@@ -28,18 +31,26 @@ module.exports = {
 			})
 	},
 	trainStatusForAll: () => {
-		logger.info('Query API')
-		return request.getAsync(`${requestBase}/live-trains`)
-			.then((response) => {
-				logger.info('API query done')
-				let trainsData = JSON.parse(response[0].body)
-				logger.info(`${trainsData.length} trains to handle`)
-				let statuses = trainsData.map((data) => getTrainInfo(data, true))
-				logger.info('Train statuses ready')
-				return statuses
-			})
+		let deepCopiedCache = JSON.parse(JSON.stringify(trainStatusForAllCache))
+		return Promise.resolve(deepCopiedCache)
 	}
 }
+
+Bacon.interval(30*1000, 1).merge(Bacon.once(1))
+	.flatMap(() => {
+		logger.info('Query API')
+		return Bacon.fromPromise(request.getAsync(`${requestBase}/live-trains`))
+	})
+	.map((response) => {
+		logger.info('API query done')
+		let trainsData = JSON.parse(response[0].body)
+		logger.info(`${trainsData.length} trains to handle`)
+		let statuses = trainsData.map((data) => getTrainInfo(data, true))
+		logger.info('Train statuses ready')
+		return statuses
+	})
+	.onValue((statuses) => trainStatusForAllCache = statuses)
+
 
 function getTrainInfo(fullData, excludeStations) {
 	let stations = getStationInfos(fullData)
@@ -61,6 +72,13 @@ function getTrainInfo(fullData, excludeStations) {
 	trainInfo.wasLate = anyTrain((station) => station.wasLate)
 	trainInfo.willBeLate = anyTrain((station) => station.willBeLate)
 
+	let howMuchLateAllStations =
+		stations
+			.filter((station) => Boolean(station.lateMins))
+			.map((station) => station.lateMins)
+			.concat([0]) // easy way to handle empty lists
+	trainInfo.maxLate = Math.max.apply(null, howMuchLateAllStations)
+
 	let nextStation = stations.find((station) => station.passed === false)
 	trainInfo.station =
 		(typeof nextStation !== 'undefined') ?
@@ -71,7 +89,8 @@ function getTrainInfo(fullData, excludeStations) {
 
 	trainInfo.departs = stations[0].scheduledTime
 	trainInfo.arrives = stations.slice(-1)[0].scheduledTime
-	trainInfo.hasDeparted = (stations[0].actualTime) ? true : false
+	trainInfo.hasDeparted = Boolean(stations[0].actualTime)
+	trainInfo.hasArrived = Boolean(stations.slice(-1)[0].actualTime)
 
 	return trainInfo
 }
@@ -94,16 +113,23 @@ function toSimpleStation(stationInfo) {
 		estimateTime: stationInfo.liveEstimateTime
 	}
 
-	function isLate(realTime) {
-		return moment(realTime).diff(moment(simpleInfo.scheduledTime), 'seconds') > 2*60
+	function lateMins(realTime) {
+		let howMuchLate = moment(realTime).diff(moment(simpleInfo.scheduledTime), 'seconds')
+		return (howMuchLate > 2*60) ? howMuchLate/60 : 0
 	}
 
-	if(simpleInfo.actualTime) {
-		simpleInfo.wasLate = isLate(simpleInfo.actualTime)
+	function markIfLate(realTime, markedFieldName) {
+		if(realTime) {
+			let late = lateMins(realTime)
+			simpleInfo[markedFieldName] = Boolean(late)
+			if (late > 0) {
+				simpleInfo.lateMins = Math.floor(late)
+			}
+		}
 	}
-	if(simpleInfo.estimateTime) {
-		simpleInfo.willBeLate = isLate(simpleInfo.estimateTime)
-	}
+
+	markIfLate(simpleInfo.actualTime, 'wasLate')
+	markIfLate(simpleInfo.estimateTime, 'willBeLate')
 
 	return simpleInfo
 }

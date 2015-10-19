@@ -22,9 +22,37 @@ var Train = React.createClass({
 		var isOnSchdule = !isLate && info.hasDeparted;
 
 		var late = '';
-		if (isLate) late = 'Late';else if (info.hasDeparted) late = 'On schedule';else if (info.cancelled) late = 'Cancelled';else late = 'Hasn\'t departed yet';
+		if (info.willBeLate) late = 'Is late';else if (info.wasLate) late = 'Was late';else if (info.hasDeparted) late = 'On schedule';else if (info.cancelled) late = 'Cancelled';
+
+		if (isLate) {
+			var maxLate = React.createElement(
+				'p',
+				{ className: 'tight' },
+				'Late max ',
+				info.maxLate,
+				' mins'
+			);
+		}
 
 		var classes = classNames('train', { late: isLate, 'on-schedule': isOnSchdule, 'cancelled': info.cancelled });
+
+		var nextStation = !info.hasArrived && info.hasDeparted ? React.createElement(
+			'p',
+			null,
+			'next: ',
+			info.station
+		) : '';
+		var arrivedOrNotDeparted = '';
+		if (info.hasArrived) arrivedOrNotDeparted = React.createElement(
+			'p',
+			null,
+			'Arrived to ',
+			info.arrStation
+		);else if (!info.hasDeparted) arrivedOrNotDeparted = React.createElement(
+			'p',
+			null,
+			'Hasn\'t departed yet'
+		);
 
 		return React.createElement(
 			'div',
@@ -38,28 +66,26 @@ var Train = React.createClass({
 			),
 			React.createElement(
 				'p',
-				null,
+				{ className: 'tight' },
 				info.depStation,
 				' - ',
 				info.arrStation
 			),
 			React.createElement(
 				'p',
-				null,
+				{ className: 'tight' },
 				getTime(info.departs),
 				' - ',
 				getTime(info.arrives)
 			),
+			arrivedOrNotDeparted,
+			nextStation,
 			React.createElement(
 				'p',
-				null,
-				info.station
-			),
-			React.createElement(
-				'p',
-				null,
+				{ className: 'tight' },
 				late
-			)
+			),
+			maxLate
 		);
 	}
 });

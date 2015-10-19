@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "baconjs": "^0.7.71",
+    "baconjs": "^0.7.77",
     "bluebird": "^2.10.2",
     "body-parser": "*",
     "bunyan": "^1.5.1",
