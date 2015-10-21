@@ -16,7 +16,7 @@ let Train = React.createClass({
 		let info = this.props.info
 
 		let isLate = info.wasLate || info.willBeLate
-		let isOnSchdule = !isLate && info.hasDeparted
+		let isOnSchedule = !isLate && info.hasDeparted
 
 		let late = ''
 		if (info.willBeLate) late = 'Is late'
@@ -30,13 +30,18 @@ let Train = React.createClass({
 
 		let classes = classNames(
 			'train',
-			{late: isLate, 'on-schedule': isOnSchdule, 'cancelled': info.cancelled}
+			{
+				'lightly-late': isLate && info.maxLate <= 5,
+				'late': isLate && info.maxLate > 5,
+				'on-schedule': isOnSchedule,
+				'cancelled': info.cancelled
+			}
 		)
 
 		let nextStation = (!info.hasArrived && info.hasDeparted) ? <p>next: {info.station}</p> : ''
 		let arrivedOrNotDeparted = ''
 		if (info.hasArrived) arrivedOrNotDeparted = <p>Arrived to {info.arrStation}</p>
-		else if (!info.hasDeparted) arrivedOrNotDeparted = <p>Hasn't departed yet</p>
+		else if (!info.hasDeparted && !info.cancelled) arrivedOrNotDeparted = <p>Hasn't departed yet</p>
 
 		return (
 			<div className={classes}>

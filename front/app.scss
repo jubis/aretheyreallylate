@@ -40,6 +40,9 @@ body > h1 {
   &.late {
     background-color: lightcoral;
   }
+  &.lightly-late {
+    background-color: #F0E380;
+  }
   &.on-schedule {
     background-color: darkseagreen;
   }
