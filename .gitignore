@@ -1,3 +1,7 @@
 .idea/
 node_modules/
 **/*.zip
+
+# Build results
+front/*.css*
+front/*.js*
