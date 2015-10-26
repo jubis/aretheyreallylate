@@ -1,5 +1,6 @@
 body {
   font-family: 'Source Sans Pro', sans-serif;
+  margin: 0 5%;
 }
 
 body > h1 {
@@ -9,8 +10,41 @@ body > h1 {
 
 .train-list {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+}
+
+$trainGroupHeaderMarginBottom: 15px;
+.train-group {
+
+  .group-header {
+    display: flex;
+    flex-direction: row;
+
+    h2 {
+      font-size: 45px;
+      margin: 30px 5px $trainGroupHeaderMarginBottom 20px;
+      line-height: 40px;
+    }
+
+    .status {
+      align-self: flex-end;
+      margin-bottom: $trainGroupHeaderMarginBottom;
+      & > span {
+        padding: 0 10px;
+
+        span:last-child {
+          font-size: 25px;
+        }
+      }
+    }
+  }
+
+  .train-container {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    display: flex;
+    flex-direction: row;
+  }
 }
 
 .train {
@@ -26,6 +60,11 @@ body > h1 {
   h3 {
     margin: 5px 0;
     text-align: center;
+
+    &.commuter {
+      font-size: 30px;
+      margin: -5px 0 0;
+    }
   }
 
   p {

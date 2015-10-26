@@ -43,24 +43,35 @@ Bacon.interval(30*1000, 1).merge(Bacon.once(1))
 	})
 	.map((response) => {
 		logger.info('API query done')
-		let trainsData = JSON.parse(response[0].body)
+
+		const trainsData = JSON.parse(response[0].body)
 		logger.info(`${trainsData.length} trains to handle`)
-		let statuses = trainsData.map((data) => getTrainInfo(data, true))
+
+		const statuses = trainsData.map((data) => getTrainInfo(data, true))
 		logger.info('Train statuses ready')
-		return statuses
+
+		const grouped = groupTrainsByType(statuses)
+		return Object.keys(grouped)
+			.map(groupName => ({name: groupName, trains: grouped[groupName]}))
+			.map(group => {
+				group.status = countStatusAggrFor(group.trains)
+				return group
+			})
 	})
 	.onValue((statuses) => trainStatusForAllCache = statuses)
 
-
 function getTrainInfo(fullData, excludeStations) {
 	let stations = getStationInfos(fullData)
-	//logger.info('Station infos ready')
 
 	let trainInfo = {
 		trainNumber: fullData.trainNumber,
 		date: fullData.departureDate,
 		type: fullData.trainType,
 		cancelled: fullData.cancelled
+	}
+
+	if(fullData.commuterLineID) {
+		trainInfo.commuterLine = fullData.commuterLineID
 	}
 
 	if(excludeStations !== true) {
@@ -78,6 +89,7 @@ function getTrainInfo(fullData, excludeStations) {
 			.map((station) => station.lateMins)
 			.concat([0]) // easy way to handle empty lists
 	trainInfo.maxLate = Math.max.apply(null, howMuchLateAllStations)
+	trainInfo.onlyLightlyLate = trainInfo.maxLate <= 5
 
 	let nextStation = stations.find((station) => station.passed === false)
 	trainInfo.station =
@@ -132,4 +144,25 @@ function toSimpleStation(stationInfo) {
 	markIfLate(simpleInfo.estimateTime, 'willBeLate')
 
 	return simpleInfo
+}
+
+function groupTrainsByType(trains) {
+	return trains.reduce((grouped, train) => {
+		if(grouped[train.type]) {
+			grouped[train.type].push(train)
+		}
+		else {
+			grouped[train.type] = [train]
+		}
+		return grouped
+	}, {})
+}
+
+function countStatusAggrFor(trains) {
+	return {
+		total: trains.length,
+		onSchedule: trains.filter(train => !train.wasLate && !train.willBeLate).length,
+		lightlyLate: trains.filter(train => train.maxLate > 0 && train.onlyLightlyLate).length,
+		late: trains.filter(train => train.maxLate > 0 && !train.onlyLightlyLate).length
+	}
 }
