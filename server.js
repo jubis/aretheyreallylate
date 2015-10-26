@@ -12,7 +12,6 @@ app.get('/train', (req, res) => {
 	trains.trainInfoForAll().then(respondJson(res))
 })
 
-
 app.get('/train/:trainNumber', (req, res) => {
 	let trainNumber = req.params.trainNumber
 
