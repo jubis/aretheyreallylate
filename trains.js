@@ -1,3 +1,5 @@
+'use strict';
+
 let Promise = require('bluebird')
 let request = require('request')
 let moment = require('moment')

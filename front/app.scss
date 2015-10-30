@@ -20,6 +20,7 @@ $trainGroupHeaderMarginBottom: 15px;
     display: flex;
     flex-direction: row;
 
+
     h2 {
       font-size: 45px;
       margin: 30px 5px $trainGroupHeaderMarginBottom 20px;
@@ -48,9 +49,7 @@ $trainGroupHeaderMarginBottom: 15px;
 }
 
 .train {
-  min-width: 80px;
-  max-width: 120px;
-  width: 15%;
+  flex: 1 1 110px;
   padding: 16px;
   margin: 6px;
   border: 1px solid lightgray;
