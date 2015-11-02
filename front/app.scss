@@ -1,3 +1,11 @@
+@mixin box {
+  padding: 16px;
+  margin: 6px;
+  border: 1px solid lightgray;
+  box-shadow: 0 0 3px 0px lightgray;
+  border-radius: 5px;
+}
+
 body {
   font-family: 'Source Sans Pro', sans-serif;
   margin: 0 5%;
@@ -13,17 +21,18 @@ body > h1 {
   flex-direction: column;
 }
 
-$trainGroupHeaderMarginBottom: 15px;
+$trainGroupHeaderMarginBottom: 12px;
 .train-group {
 
   .group-header {
     display: flex;
     flex-direction: row;
-
+    @include box;
+    margin-top: 10px;
 
     h2 {
       font-size: 45px;
-      margin: 30px 5px $trainGroupHeaderMarginBottom 20px;
+      margin: 10px 5px $trainGroupHeaderMarginBottom 20px;
       line-height: 40px;
     }
 
@@ -45,16 +54,15 @@ $trainGroupHeaderMarginBottom: 15px;
     justify-content: flex-start;
     display: flex;
     flex-direction: row;
+
+    margin-bottom: 20px;
   }
 }
 
 .train {
   flex: 1 1 110px;
-  padding: 16px;
-  margin: 6px;
-  border: 1px solid lightgray;
-  box-shadow: 0 0 5px 1px lightgray;
-  border-radius: 5px;
+  max-width: 160px;
+  @include box;
 
   h3 {
     margin: 5px 0;
@@ -87,4 +95,9 @@ $trainGroupHeaderMarginBottom: 15px;
   &.cancelled {
     background-color: lightgray;
   }
+}
+
+button.clean {
+  background: none;
+  border: none;
 }

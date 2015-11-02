@@ -18,6 +18,8 @@
     "bacon.jquery": "~0.4.12",
     "momentjs": "~2.10.6",
     "react": "~0.14.0",
-    "classnames": "~2.1.5"
+    "classnames": "~2.1.5",
+    "font-awesome": "~4.4.0",
+    "semantic": "semantic-ui#~2.1.5"
   }
 }

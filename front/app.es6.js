@@ -1,3 +1,5 @@
+'use strict'
+
 var searches = new Bacon.Bus()
 
 let trainsData = searches
@@ -60,11 +62,14 @@ let Train = React.createClass({
 })
 
 const TrainGroup = React.createClass({
+	getInitialState: function() {
+		return {open:false}
+	},
 	render: function() {
 		const status = this.props.info.status
 		return (
 			<div className='train-group'>
-				<div className='group-header'>
+				<div className='group-header title'>
 					<h2>{this.props.info.name}</h2>
 					<div className='status'>
 						<span>X {status.total}</span>
@@ -73,7 +78,7 @@ const TrainGroup = React.createClass({
 						<span>Late X {status.late}</span>
 					</div>
 				</div>
-				<div className='train-container'>{this.props.children}</div>
+				<div className='train-container content'>{this.props.children}</div>
 			</div>
 		)
 	}
@@ -84,10 +89,16 @@ let TrainList = React.createClass({
 		return {trains: []}
 	},
 	componentDidMount: function() {
-		console.log('did mount')
 		trainsData
 			.log('trainlist')
 			.onValue(trains => this.setState({trains:trains}))
+	},
+	initAccordion: function(ref) {
+		console.log('init accordion')
+		$(ref).accordion({
+			exclusive: false,
+			animateChildren: false
+		})
 	},
 	render: function() {
 		let trains =
@@ -101,10 +112,18 @@ let TrainList = React.createClass({
 				))
 
 		return (
-			<div className="train-list">
+			<div className="train-list ui accordion" ref={this.initAccordion}>
 				{(trains.length === 0) ? 'Loading...' : ''}
 				{trains}
 			</div>
+		)
+	}
+})
+
+const Icon = React.createClass({
+	render: function() {
+		return (
+			<i className={classNames('fa', this.props.name)}></i>
 		)
 	}
 })
