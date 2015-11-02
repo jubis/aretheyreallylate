@@ -1,6 +1,6 @@
 FROM node
 
-RUN npm install -g babel
+RUN npm install -g babel-cli
 RUN npm install -g bunyan
 
 ADD . /trains
