@@ -163,8 +163,9 @@ function groupTrainsByType(trains) {
 function countStatusAggrFor(trains) {
 	return {
 		total: trains.length,
-		onSchedule: trains.filter(train => !train.wasLate && !train.willBeLate).length,
+		departed: trains.filter(train => train.hasDeparted).length,
 		lightlyLate: trains.filter(train => train.maxLate > 0 && train.onlyLightlyLate).length,
-		late: trains.filter(train => train.maxLate > 0 && !train.onlyLightlyLate).length
+		late: trains.filter(train => train.maxLate > 0 && !train.onlyLightlyLate).length,
+		cancelled: trains.filter(train => train.cancelled).length
 	}
 }

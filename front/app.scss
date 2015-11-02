@@ -32,18 +32,29 @@ $trainGroupHeaderMarginBottom: 12px;
 
     h2 {
       font-size: 45px;
-      margin: 10px 5px $trainGroupHeaderMarginBottom 20px;
+      margin: 10px 5px 0 20px;
       line-height: 40px;
     }
 
-    .status {
+    .type {
+      width: 180px;
+    }
+
+    .status, .type {
+      display: flex;
+      flex-direction: row;
+
       align-self: flex-end;
       margin-bottom: $trainGroupHeaderMarginBottom;
-      & > span {
-        padding: 0 10px;
+      font-size: 14px;
+
+      & > * {
+        align-self: flex-end;
 
         span:last-child {
           font-size: 25px;
+          width: 50px;
+          display: inline-block;
         }
       }
     }

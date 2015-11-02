@@ -4,7 +4,6 @@
 
 .ui.accordion *:not(.fa) {
 	box-sizing: content-box;
-	font-family: 'Source Sans Pro', sans-serif !important;
 }
 
 .ui.accordion .active.content,

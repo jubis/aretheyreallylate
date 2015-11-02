@@ -70,12 +70,15 @@ const TrainGroup = React.createClass({
 		return (
 			<div className='train-group'>
 				<div className='group-header title'>
-					<h2>{this.props.info.name}</h2>
-					<div className='status'>
+					<div className='type'>
+						<h2>{this.props.info.name}</h2>
 						<span>X {status.total}</span>
-						<span>Not late X {status.onSchedule}</span>
+					</div>
+					<div className='status'>
+						<span>Departed X {status.departed}</span>
 						<span>Lightly late X {status.lightlyLate}</span>
 						<span>Late X {status.late}</span>
+						<span>Cancelled X {status.cancelled}</span>
 					</div>
 				</div>
 				<div className='train-container content'>{this.props.children}</div>
