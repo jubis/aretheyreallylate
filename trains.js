@@ -59,6 +59,10 @@ Bacon.interval(30*1000, 1).merge(Bacon.once(1))
 				group.status = countStatusAggrFor(group.trains)
 				return group
 			})
+			.map(group => {
+				group.trains.sort((train1, train2) => moment(train1.departs).valueOf() - moment(train2.departs).valueOf())
+				return group
+			})
 	})
 	.onValue((statuses) => trainStatusForAllCache = statuses)
 
