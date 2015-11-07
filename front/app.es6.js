@@ -61,9 +61,22 @@ let Train = React.createClass({
 	}
 })
 
+function getStatusValues(status) {
+	const values = [status.onSchedule, status.lightlyLate, status.late, status.cancelled, status.notDeparted]
+	return values.map(value => value/status.total)
+}
+
 const TrainGroup = React.createClass({
 	getInitialState: function() {
 		return {open:false}
+	},
+	componentDidMount: function() {
+		const statusValues = getStatusValues(this.props.info.status)
+		d3.select(this.refs.graph).selectAll('span')
+			.data(statusValues)
+			.enter().append('span')
+			.style('width', value => value*100 + '%')
+			.style('display', value => value == 0 ? 'none' : 'auto')
 	},
 	render: function() {
 		const status = this.props.info.status
@@ -74,12 +87,13 @@ const TrainGroup = React.createClass({
 						<h2>{this.props.info.name}</h2>
 						<span>X {status.total}</span>
 					</div>
-					<div className='status'>
-						<span>Departed X {status.departed}</span>
-						<span>Lightly late X {status.lightlyLate}</span>
-						<span>Late X {status.late}</span>
-						<span>Cancelled X {status.cancelled}</span>
+					<div className='status' ref='status'>
+						<span>On schedule<br/>{status.onSchedule}</span>
+						<span>Lightly late<br/>{status.lightlyLate}</span>
+						<span>Late<br/>{status.late}</span>
+						<span>Cancelled<br/>{status.cancelled}</span>
 					</div>
+					<div className='graph' ref='graph'></div>
 				</div>
 				<div className='train-container content'>{this.props.children}</div>
 			</div>

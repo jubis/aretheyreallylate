@@ -53,9 +53,41 @@ $trainGroupHeaderMarginBottom: 12px;
 
         span:last-child {
           font-size: 25px;
-          width: 50px;
+          width: 40px;
           display: inline-block;
         }
+      }
+    }
+
+    .status > span {
+      padding-right: 30px;
+    }
+
+    .graph {
+      flex-grow: 1;
+      margin: -0.5em 0;
+
+      display: flex;
+
+      span {
+        border-left: 1px solid lightGray;
+        box-sizing: border-box;
+      }
+
+      span:nth-child(1) {
+        background-color: darkseagreen;
+      }
+      span:nth-child(2) {
+        background-color: #F0E380;
+      }
+      span:nth-child(3) {
+        background-color: lightcoral;
+      }
+      span:nth-child(4) {
+        background-color: lightgray;
+      }
+      span:nth-child(5) {
+        background-color: white;
       }
     }
   }

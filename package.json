@@ -5,6 +5,9 @@
   "main": "server.js",
   "author": "Matias Saarinen (jubis)",
   "license": "ISC",
+  "scripts": {
+    "start": "babel-node server.js | bunyan"
+  },
   "dependencies": {
     "babel-plugin-transform-react-jsx": "^6.0.2",
     "baconjs": "^0.7.77",
