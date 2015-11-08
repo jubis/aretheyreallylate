@@ -69,26 +69,51 @@ $trainGroupHeaderMarginBottom: 12px;
 
       display: flex;
 
-      span {
+      div {
         border-left: 1px solid lightGray;
         box-sizing: border-box;
+        display: flex;
+
+        &:nth-child(1) {
+          background-color: darkseagreen;
+        }
+        &:nth-child(2) {
+          background-color: #F0E380;
+        }
+        &:nth-child(3) {
+          background-color: lightcoral;
+        }
+        &:nth-child(4) {
+          background-color: lightgray;
+        }
+        &:nth-child(5) {
+          background-color: white;
+        }
+
+        p {
+          align-self: center;
+          font-size: 25px;
+          margin-left: 10px;
+          position: relative;
+          display: none;
+        }
+
+        &:hover p {
+          color: #333 !important;
+        }
+        &:hover {
+          z-index: 100;
+        }
       }
 
-      span:nth-child(1) {
-        background-color: darkseagreen;
-      }
-      span:nth-child(2) {
-        background-color: #F0E380;
-      }
-      span:nth-child(3) {
-        background-color: lightcoral;
-      }
-      span:nth-child(4) {
-        background-color: lightgray;
-      }
-      span:nth-child(5) {
-        background-color: white;
-      }
+    }
+
+    & .graph:hover div.graph-part p {
+      color: #aaa;
+    }
+
+    &:hover div.graph-part p {
+      display: block;
     }
   }
 

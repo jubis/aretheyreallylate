@@ -72,9 +72,13 @@ const TrainGroup = React.createClass({
 	},
 	componentDidMount: function() {
 		const statusValues = getStatusValues(this.props.info.status)
-		d3.select(this.refs.graph).selectAll('span')
+		d3.select(this.refs.graph).selectAll('div')
 			.data(statusValues)
-			.enter().append('span')
+			.enter().append('div').insert('p')
+			.text(value => Math.round(value*100).toString().slice(0,2) + '%')
+		d3.select(this.refs.graph).selectAll('div')
+			.data(statusValues)
+			.attr('class', 'graph-part')
 			.style('width', value => value*100 + '%')
 			.style('display', value => value == 0 ? 'none' : 'auto')
 	},
