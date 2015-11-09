@@ -8,3 +8,4 @@ front/lib/
 # Build results
 front/*.css*
 front/*.js*
+!front/*.es6.js
