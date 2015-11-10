@@ -113,7 +113,7 @@ const TrainGroup = React.createClass({
 		d3.select(this.refs.graph).selectAll('div')
 			.data(statusValues)
 			.enter().append('div').insert('p')
-			.text(value => Math.round(value*100).toString().slice(0,2) + '%')
+			.text(value => Math.round(value*100).toString() + '%')
 		d3.select(this.refs.graph).selectAll('div')
 			.data(statusValues)
 			.attr('class', 'graph-part')
