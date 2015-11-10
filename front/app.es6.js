@@ -8,10 +8,14 @@ const Icon = React.createClass({
 })
 
 const refreshS = new Bacon.Bus()
+refreshS.plug(Bacon.interval(5000, 0))
 
 $('document').ready(() => {
 	ReactDOM.render(
-		<TrainList refreshS={refreshS.merge(Bacon.interval(5000, 0))} />,
+		<div>
+			<TrainList refreshS={refreshS} />
+			<TrainView trainS={selectedTrainB} />
+		</div>,
 		document.getElementById('content')
 	)
 	refreshS.push(0)

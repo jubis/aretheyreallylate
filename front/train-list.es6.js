@@ -1,5 +1,7 @@
 'use strict'
 
+const selectedTrainB = new Bacon.Bus()
+
 const TrainList = React.createClass({
 	getInitialState: function() {
 		return {trains: []}
@@ -41,6 +43,12 @@ function getTime(stringTime) {
 }
 
 let Train = React.createClass({
+	componentDidMount: function() {
+		selectedTrainB.plug(
+			$(this.refs.main).asEventStream('click')
+				.map(this.props.info)
+		)
+	},
 	render: function() {
 		let info = this.props.info
 
@@ -77,7 +85,7 @@ let Train = React.createClass({
 		else if (!info.hasDeparted && !info.cancelled) arrivedOrNotDeparted = <p>Hasn't departed yet</p>
 
 		return (
-			<div className={classes}>
+			<div className={classes} ref='main'>
 				{header}
 				<p className='tight'>{info.depStation} - {info.arrStation}</p>
 				<p className='tight'>{getTime(info.departs)} - {getTime(info.arrives)}</p>
@@ -85,6 +93,7 @@ let Train = React.createClass({
 				{nextStation}
 				<p className='tight'>{late}</p>
 				{maxLate}
+				{this.props.showMap ? <div className='map' /> : ''}
 			</div>
 		)
 	}
