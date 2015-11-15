@@ -33,7 +33,7 @@ module.exports = {
 			})
 	},
 	trainStatusForAll: () => {
-		let deepCopiedCache = JSON.parse(JSON.stringify(trainStatusForAllCache))
+		let deepCopiedCache = deepClone(trainStatusForAllCache)
 		return Promise.resolve(deepCopiedCache)
 	}
 }
@@ -60,9 +60,12 @@ Bacon.interval(30*1000, 1).merge(Bacon.once(1))
 				return group
 			})
 			.map(group => {
-				group.trains.sort((train1, train2) => moment(train1.departs).valueOf() - moment(train2.departs).valueOf())
+				group.trains.sort((train1, train2) =>
+					moment(train1.departs).valueOf() - moment(train2.departs).valueOf()
+				)
 				return group
 			})
+			.sort((group1, group2) => group1.name.localeCompare(group2.name))
 	})
 	.onValue((statuses) => trainStatusForAllCache = statuses)
 
@@ -177,4 +180,8 @@ function countStatusAggrFor(trains) {
 	aggregations.notDeparted = trains.filter(train => !train.hasDeparted).length - aggregations.cancelled
 
 	return aggregations
+}
+
+function deepClone(object) {
+	return JSON.parse(JSON.stringify(object))
 }
