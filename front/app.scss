@@ -187,9 +187,18 @@ $trainGroupHeaderMarginBottom: 12px;
   justify-content: center;
 
   text-align: center;
-  background-color: rgba(0,0,0,0.8);
+
+  .train-view-bg {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.8);
+  }
 
   .train {
+    z-index: 2;
+
     h3, P {
       font-size: 150%;
     }

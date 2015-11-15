@@ -48,6 +48,14 @@ let Train = React.createClass({
 			$(this.refs.main).asEventStream('click')
 				.map(this.props.info)
 		)
+		if(this.props.showMap) {
+			console.log('map')
+			new google.maps.Map(this.refs.map, {
+				zoom: 9,
+				center: {lat: 60.173622, lng: 24.940724},
+				disableDefaultUI: true
+			})
+		}
 	},
 	render: function() {
 		let info = this.props.info
@@ -93,7 +101,7 @@ let Train = React.createClass({
 				{nextStation}
 				<p className='tight'>{late}</p>
 				{maxLate}
-				{this.props.showMap ? <div className='map' /> : ''}
+				{this.props.showMap ? <div className='map' ref='map' /> : ''}
 			</div>
 		)
 	}
