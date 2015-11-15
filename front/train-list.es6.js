@@ -87,7 +87,7 @@ let Train = React.createClass({
 			}
 		)
 
-		let nextStation = (!info.hasArrived && info.hasDeparted) ? <p>next: {info.station}</p> : ''
+		let nextStation = (!info.hasArrived && info.hasDeparted) ? <p>next: {info.nextStation}</p> : ''
 		let arrivedOrNotDeparted = ''
 		if (info.hasArrived) arrivedOrNotDeparted = <p>Arrived to {info.arrStation}</p>
 		else if (!info.hasDeparted && !info.cancelled) arrivedOrNotDeparted = <p>Hasn't departed yet</p>

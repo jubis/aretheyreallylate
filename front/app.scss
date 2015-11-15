@@ -137,9 +137,10 @@ $trainGroupHeaderMarginBottom: 12px;
   h3 {
     margin: 5px 0;
     text-align: center;
+    font-size: 1.5em;
 
     &.commuter {
-      font-size: 30px;
+      font-size: 2em;
       margin: -5px 0 0;
     }
   }
@@ -199,9 +200,7 @@ $trainGroupHeaderMarginBottom: 12px;
   .train {
     z-index: 2;
 
-    h3, P {
-      font-size: 150%;
-    }
+    font-size: 150%;
 
     flex: none;
     max-width: none;

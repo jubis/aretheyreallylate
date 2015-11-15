@@ -1,18 +1,18 @@
 'use strict';
 
-let Promise = require('bluebird')
-let request = require('request')
-let moment = require('moment')
-let bunyan = require('bunyan')
-let Bacon = require('baconjs')
-
-let logger = bunyan.createLogger({name: 'Trains'})
-
+const Promise = require('bluebird')
+const request = require('request')
+const moment = require('moment')
+const bunyan = require('bunyan')
+const Bacon = require('baconjs')
+const logger = bunyan.createLogger({name: 'Trains'})
 Promise.promisifyAll(request)
 
-let apiHost = 'rata.digitraffic.fi'
-let apiUriBase = '/api/v1/'
-let requestBase = `http://${apiHost}${apiUriBase}`
+const stationService = require('./stations')
+
+const apiHost = 'rata.digitraffic.fi'
+const apiUriBase = '/api/v1/'
+const requestBase = `http://${apiHost}${apiUriBase}`
 
 let trainStatusForAllCache = null
 
@@ -100,10 +100,14 @@ function getTrainInfo(fullData, excludeStations) {
 	trainInfo.maxLate = Math.max.apply(null, howMuchLateAllStations)
 	trainInfo.onlyLightlyLate = trainInfo.maxLate <= 5
 
-	let nextStation = stations.find((station) => station.passed === false)
-	trainInfo.station =
-		(typeof nextStation !== 'undefined') ?
-			nextStation.code : stations.slice(-1)[0].code
+	const nextStation = stations.find((station) => station.passed === false)
+	const prevStation = deepClone(stations).reverse().find((station) => station.passed === true)
+	if(nextStation) {
+		trainInfo.nextStation = stationService.getStationDetails(nextStation.code)
+	}
+	if(prevStation) {
+		trainInfo.prevStation = stationService.getStationDetails(prevStation.code)
+	}
 
 	trainInfo.depStation = stations[0].code
 	trainInfo.arrStation = stations.slice(-1)[0].code
