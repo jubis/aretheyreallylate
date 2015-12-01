@@ -4,6 +4,11 @@ let express = require('express')
 let bodyParser = require('body-parser')
 let Bacon = require('baconjs')
 
+const fs = require("fs");
+const browserify = require("browserify");
+
+
+
 let trains = require('./trains')
 
 let app = express()
@@ -29,6 +34,13 @@ function respondJson(res) {
 		res.contentType('application/json').send(content)
 	}
 }
+
+app.get('/scripts.js', (req, res) => {
+	browserify('front/app.es6.js', {debug: true})
+		.transform("babelify", {presets: ["es2015", "react"]})
+		.bundle()
+		.pipe(res);
+})
 
 app.listen(8081, () => {
 	console.log('Data-access server listening on port ' + 8081)

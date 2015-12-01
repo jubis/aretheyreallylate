@@ -1,111 +1,61 @@
 'use strict'
 
-const selectedTrainB = new Bacon.Bus()
+const {createAction} = require('./data.es6')
+const {TrainView} = require('./train-view.es6')
+const {Train} = require('./train.es6')
 
-const TrainList = React.createClass({
-	getInitialState: function() {
-		return {trains: []}
-	},
-	componentDidMount: function() {
-		trainsData(this.props.refreshS)
-			.log('trainlist')
-			.onValue(trains => this.setState({trains:trains}))
-	},
-	initAccordion: function(ref) {
+
+module.exports = {
+	TrainList: TrainList,
+	Train: Train
+}
+
+function createTrainViewModel(selectedTrain) {
+	const closeTrainView = createAction()
+
+	return {
+		train: selectedTrain,
+		closeView: closeTrainView.action,
+		trainViewVisible: closeTrainView.$
+			.map(false)
+			.toProperty(typeof selectedTrain != 'undefined')
+			.log('train view visible')
+	}
+}
+
+function TrainList(trainListModel) {
+
+	function initAccordion(ref) {
 		console.log('init accordion')
 		$(ref).accordion({
 			exclusive: false,
 			animateChildren: false
 		})
-	},
-	render: function() {
-		let trains =
-			this.state.trains
-				.map(trainGroup => (
-					<TrainGroup info={trainGroup} key={trainGroup.name}>
-						{trainGroup.trains.map(train =>
-								<Train info={train} key={train.trainNumber}/>
-						)}
-					</TrainGroup>
-				))
-
-		return (
-			<div className="train-list ui accordion" ref={this.initAccordion}>
-				{(trains.length === 0) ? 'Loading...' : ''}
-				{trains}
-			</div>
-		)
 	}
-})
 
-function getTime(stringTime) {
-	return moment(stringTime).format('H:mm')
+	const trains = trainListModel.$trains.log('trains in list')
+	const setSelectedTrain = trainListModel.setSelectedTrain
+	const trainViewModel = trainListModel.$selectedTrain.map(createTrainViewModel)
+	return (
+		<div>
+			{trainViewModel.log('trainviewmodel').flatMap(model => TrainView(model))}
+			<div className="train-list ui accordion" ref={initAccordion}>
+				{(trains.map(trains => trains.length === 0)) ? 'Loading...' : ''}
+
+				{trains.map(trainGroups => trainGroups.map(trainGroup => (
+					<TrainGroup info={trainGroup} key={trainGroup.name}>
+						{trainGroupChildren(trainGroup, setSelectedTrain)}
+					</TrainGroup>
+				)))}
+			</div>
+		</div>
+	)
 }
 
-let Train = React.createClass({
-	componentDidMount: function() {
-		selectedTrainB.plug(
-			$(this.refs.main).asEventStream('click')
-				.map(this.props.info)
-		)
-		if(this.props.showMap) {
-			console.log('map')
-			new google.maps.Map(this.refs.map, {
-				zoom: 9,
-				center: {lat: 60.173622, lng: 24.940724},
-				disableDefaultUI: true
-			})
-		}
-	},
-	render: function() {
-		let info = this.props.info
-
-		const header = (!info.commuterLine) ?
-			<h3>{info.type} {info.trainNumber}</h3> :
-			<h3 className='commuter'>{info.commuterLine}</h3>
-
-		let isLate = info.wasLate || info.willBeLate
-		let isOnSchedule = !isLate && info.hasDeparted
-
-		let late = ''
-		if (info.willBeLate) late = 'Is late'
-		else if (info.wasLate) late = 'Was late'
-		else if (info.hasDeparted) late = 'On schedule'
-		else if (info.cancelled) late = 'Cancelled'
-
-		if (isLate) {
-			var maxLate = <p className='tight'>Late max {info.maxLate} mins</p>
-		}
-
-		let classes = classNames(
-			'train',
-			{
-				'lightly-late': isLate && info.maxLate <= 5,
-				'late': isLate && info.maxLate > 5,
-				'on-schedule': isOnSchedule,
-				'cancelled': info.cancelled
-			}
-		)
-
-		let nextStation = (!info.hasArrived && info.hasDeparted) ? <p>next: {info.nextStation}</p> : ''
-		let arrivedOrNotDeparted = ''
-		if (info.hasArrived) arrivedOrNotDeparted = <p>Arrived to {info.arrStation}</p>
-		else if (!info.hasDeparted && !info.cancelled) arrivedOrNotDeparted = <p>Hasn't departed yet</p>
-
-		return (
-			<div className={classes} ref='main'>
-				{header}
-				<p className='tight'>{info.depStation} - {info.arrStation}</p>
-				<p className='tight'>{getTime(info.departs)} - {getTime(info.arrives)}</p>
-				{arrivedOrNotDeparted}
-				{nextStation}
-				<p className='tight'>{late}</p>
-				{maxLate}
-				{this.props.showMap ? <div className='map' ref='map' /> : ''}
-			</div>
-		)
-	}
-})
+function trainGroupChildren(trainGroup, setSelectedTrain) {
+	console.log('train group', trainGroup)
+	return trainGroup.trains.map(train => Train(train, setSelectedTrain))
+}
 
 function getStatusValues(status) {
 	const values = [status.onSchedule, status.lightlyLate, status.late, status.cancelled, status.notDeparted]

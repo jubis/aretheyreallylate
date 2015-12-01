@@ -1,1 +1,1 @@
-zip -r build.zip server.js trains.js node_modules front Dockerfile
+zip -r build.zip *.js node_modules front Dockerfile
