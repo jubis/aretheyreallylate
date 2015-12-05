@@ -1,8 +1,7 @@
 'use strict'
 
-const {createAction} = require('./data.es6')
-const {TrainView} = require('./train-view.es6')
-const {Train} = require('./train.es6')
+const {createAction} = require('./data.js')
+const {Train} = require('./train.js')
 
 
 module.exports = {
@@ -10,51 +9,34 @@ module.exports = {
 	Train: Train
 }
 
-function createTrainViewModel(selectedTrain) {
-	const closeTrainView = createAction()
-
-	return {
-		train: selectedTrain,
-		closeView: closeTrainView.action,
-		trainViewVisible: closeTrainView.$
-			.map(false)
-			.toProperty(typeof selectedTrain != 'undefined')
-			.log('train view visible')
-	}
-}
-
-function TrainList(trainListModel) {
+function TrainList({trainList: model}) {
 
 	function initAccordion(ref) {
-		console.log('init accordion')
 		$(ref).accordion({
 			exclusive: false,
 			animateChildren: false
 		})
 	}
 
-	const trains = trainListModel.$trains.log('trains in list')
-	const setSelectedTrain = trainListModel.setSelectedTrain
-	const trainViewModel = trainListModel.$selectedTrain.map(createTrainViewModel)
+	const trains = model.trains
+	const setSelectedTrain = model.setSelectedTrain
 	return (
 		<div>
-			{trainViewModel.log('trainviewmodel').flatMap(model => TrainView(model))}
 			<div className="train-list ui accordion" ref={initAccordion}>
-				{(trains.map(trains => trains.length === 0)) ? 'Loading...' : ''}
+				{(trains.length === 0) ? 'Loading...' : ''}
 
-				{trains.map(trainGroups => trainGroups.map(trainGroup => (
+				{trains.map(trainGroup => (
 					<TrainGroup info={trainGroup} key={trainGroup.name}>
 						{trainGroupChildren(trainGroup, setSelectedTrain)}
 					</TrainGroup>
-				)))}
+				))}
 			</div>
 		</div>
 	)
 }
 
 function trainGroupChildren(trainGroup, setSelectedTrain) {
-	console.log('train group', trainGroup)
-	return trainGroup.trains.map(train => Train(train, setSelectedTrain))
+	return trainGroup.trains.map(train => (<Train info={train} setSelectedTrain={setSelectedTrain} key={train.trainNumber} />))
 }
 
 function getStatusValues(status) {
