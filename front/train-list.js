@@ -36,7 +36,7 @@ function TrainList({trainList: model}) {
 }
 
 function trainGroupChildren(trainGroup, setSelectedTrain) {
-	return trainGroup.trains.map(train => (<Train info={train} setSelectedTrain={setSelectedTrain} key={train.trainNumber} />))
+	return trainGroup.trains.map(train => (<Train info={train} setSelectedTrain={setSelectedTrain} key={train.type+train.trainNumber} />))
 }
 
 function getStatusValues(status) {

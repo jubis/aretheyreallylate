@@ -7,16 +7,18 @@ function getTime(stringTime) {
 
 const Train  = React.createClass({
 	initMap: function() {
-		if(this.props.showMap) {
+		if(this.props.big) {
+			const {prevStation, nextStation} = this.props.info
+			const {latitude, longitude} = nextStation ? nextStation : prevStation
 			new google.maps.Map($('.map')[0], {
 				zoom: 9,
-				center: {lat: 60.173622, lng: 24.940724},
+				center: {lat: latitude, lng: longitude},
 				disableDefaultUI: true
 			})
 		}
 	},
 	render: function() {
-		const {info, setSelectedTrain, showMap} = this.props
+		const {info, setSelectedTrain, big} = this.props
 
 		const header = (!info.commuterLine) ?
 			<h3>{info.type} {info.trainNumber}</h3> :
@@ -45,7 +47,9 @@ const Train  = React.createClass({
 			}
 		)
 
-		let nextStation = (!info.hasArrived && info.hasDeparted) ? <p>next: {info.nextStation}</p> : ''
+		let nextStation = (!info.hasArrived && info.hasDeparted) ?
+			<p>next: {info.nextStation.code} {big ? ' - ' + info.nextStation.name : ''}</p> :
+			''
 		let arrivedOrNotDeparted = ''
 		if (info.hasArrived) arrivedOrNotDeparted = <p>Arrived to {info.arrStation}</p>
 		else if (!info.hasDeparted && !info.cancelled) arrivedOrNotDeparted = <p>Hasn't departed yet</p>
@@ -60,7 +64,7 @@ const Train  = React.createClass({
 				{nextStation}
 				<p className='tight'>{late}</p>
 				{maxLate}
-				{showMap ? <div className='map' ref={this.initMap}/> : ''}
+				{big ? <div className='map' ref={this.initMap}/> : ''}
 			</div>
 		)
 	}

@@ -36,8 +36,8 @@ function respondJson(res) {
 }
 
 app.get('/scripts.js', (req, res) => {
-	browserify('front/app.es6.js', {debug: true})
-		.transform("babelify", {presets: ["es2015", "react"]})
+	browserify('front/app.js', {debug: true})
+		.transform("babelify", {presets: ["es2015", "react"], plugins: ["transform-object-rest-spread"]})
 		.bundle()
 		.pipe(res);
 })

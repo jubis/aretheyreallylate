@@ -1,12 +1,11 @@
 'use strict';
 
 const Promise = require('bluebird')
-const request = require('request')
+const api = require('./api')
 const moment = require('moment')
 const bunyan = require('bunyan')
 const Bacon = require('baconjs')
 const logger = bunyan.createLogger({name: 'Trains'})
-Promise.promisifyAll(request)
 
 const stationService = require('./stations')
 
@@ -18,17 +17,16 @@ let trainStatusForAllCache = null
 
 module.exports = {
 	trainInfoFor: (trainNumber) => {
-		return request.getAsync(`${requestBase}/live-trains/${trainNumber}`)
-			.then((response) => {
-				let data = response[0].body
+		return api(`live-trains/${trainNumber}`)
+			.then((data) => {
 				let trainData = JSON.parse(data)[0]
 				return getTrainInfo(trainData)
 			})
 	},
 	trainInfoForAll: () => {
-		return request.getAsync(`${requestBase}/live-trains`)
-			.then((response) => {
-				let trainsData = JSON.parse(response[0].body)
+		return api(`live-trains`)
+			.then(data => {
+				let trainsData = JSON.parse(data)
 				return trainsData.map(getTrainInfo)
 			})
 	},
@@ -41,15 +39,15 @@ module.exports = {
 Bacon.interval(30*1000, 1).merge(Bacon.once(1))
 	.flatMap(() => {
 		logger.info('Query API')
-		return Bacon.fromPromise(request.getAsync(`${requestBase}/live-trains`))
+		return Bacon.fromPromise(api(`live-trains`))
 	})
-	.map((response) => {
+	.map(data => {
 		logger.info('API query done')
 
-		const trainsData = JSON.parse(response[0].body)
+		const trainsData = JSON.parse(data)
 		logger.info(`${trainsData.length} trains to handle`)
 
-		const statuses = trainsData.map((data) => getTrainInfo(data, true))
+		const statuses = trainsData.map(data => getTrainInfo(data, true))
 		logger.info('Train statuses ready')
 
 		const grouped = groupTrainsByType(statuses)
