@@ -7,7 +7,7 @@ let stations = null
 api('metadata/stations')
 	.then(data => data.match(/<html>/gi) ? Promise.reject('Response is html') : data)
 	.then(data => JSON.parse(data))
-	.then(value => {logger.info(`stations ${value}`); return value})
+	.then(value => {logger.info(`Loaded ${value.length} stations`); return value})
 	.then(stationsData => stations = stationsData)
 
 

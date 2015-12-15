@@ -9,16 +9,49 @@ const Train  = React.createClass({
 	initMap: function() {
 		if(this.props.big) {
 			const {prevStation, nextStation} = this.props.info
-			const {latitude, longitude} = nextStation ? nextStation : prevStation
-			new google.maps.Map($('.map')[0], {
+			const {latitude: lat, longitude: lng, name} = nextStation ? nextStation : prevStation
+			const center = {lat, lng}
+
+			const map = new google.maps.Map($('.map')[0], {
 				zoom: 9,
-				center: {lat: latitude, lng: longitude},
+				center: center,
 				disableDefaultUI: true
 			})
+
+			const next = new google.maps.Marker({
+				position: center,
+				map: map,
+				title: name
+			})
+
+			if(nextStation && !prevStation) console.log(`next but no prev ${this.props.info}`)
+
+			if(nextStation && prevStation) {
+				const currentSectionCoords  = [
+					{lat: prevStation.latitude, lng: prevStation.longitude},
+					{lat: nextStation.latitude, lng: nextStation.longitude}
+				];
+				const currentSection = new google.maps.Polyline({
+					path: currentSectionCoords,
+					geodesic: true,
+					strokeColor: '#FF0000',
+					strokeOpacity: 0.8,
+					strokeWeight: 2,
+					map: map
+				})
+
+				const bounds = new google.maps.LatLngBounds(center)
+				bounds.extend(new google.maps.LatLng(prevStation.latitude, prevStation.longitude))
+				map.fitBounds(bounds)
+			}
 		}
 	},
 	render: function() {
 		const {info, setSelectedTrain, big} = this.props
+
+		function showStation(station) {
+			return big ? station.name : station.code
+		}
 
 		const header = (!info.commuterLine) ?
 			<h3>{info.type} {info.trainNumber}</h3> :
@@ -48,16 +81,16 @@ const Train  = React.createClass({
 		)
 
 		let nextStation = (!info.hasArrived && info.hasDeparted) ?
-			<p>next: {info.nextStation.code} {big ? ' - ' + info.nextStation.name : ''}</p> :
+			<p>next: {showStation(info.nextStation)}</p> :
 			''
 		let arrivedOrNotDeparted = ''
-		if (info.hasArrived) arrivedOrNotDeparted = <p>Arrived to {info.arrStation}</p>
+		if (info.hasArrived) arrivedOrNotDeparted = <p>Arrived to {showStation(info.arrStation)}</p>
 		else if (!info.hasDeparted && !info.cancelled) arrivedOrNotDeparted = <p>Hasn't departed yet</p>
 
 		return (
 			<div className={classes} onClick={() => setSelectedTrain(info)}>
 				{header}
-				<p className='tight'>{info.depStation} - {info.arrStation}</p>
+				<p className='tight'>{showStation(info.depStation)} - {showStation(info.arrStation)}</p>
 
 				<p className='tight'>{getTime(info.departs)} - {getTime(info.arrives)}</p>
 				{arrivedOrNotDeparted}

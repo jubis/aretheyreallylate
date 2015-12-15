@@ -65,6 +65,7 @@ Bacon.interval(30*1000, 1).merge(Bacon.once(1))
 			})
 			.sort((group1, group2) => group1.name.localeCompare(group2.name))
 	})
+	.doError(error => logger.error(`Train update failed: ${error}`))
 	.onValue((statuses) => trainStatusForAllCache = statuses)
 
 function getTrainInfo(fullData, excludeStations) {
@@ -98,8 +99,8 @@ function getTrainInfo(fullData, excludeStations) {
 	trainInfo.maxLate = Math.max.apply(null, howMuchLateAllStations)
 	trainInfo.onlyLightlyLate = trainInfo.maxLate <= 5
 
-	const nextStation = stations.find((station) => station.passed === false)
-	const prevStation = deepClone(stations).reverse().find((station) => station.passed === true)
+	const nextStation = stations.find(station => station.passed === false)
+	const prevStation = deepClone(stations).reverse().find(station => station.passed === true)
 	if(nextStation) {
 		trainInfo.nextStation = stationService.getStationDetails(nextStation.code)
 	}
@@ -107,8 +108,8 @@ function getTrainInfo(fullData, excludeStations) {
 		trainInfo.prevStation = stationService.getStationDetails(prevStation.code)
 	}
 
-	trainInfo.depStation = stations[0].code
-	trainInfo.arrStation = stations.slice(-1)[0].code
+	trainInfo.depStation = stationService.getStationDetails(stations[0].code)
+	trainInfo.arrStation = stationService.getStationDetails(stations.slice(-1)[0].code)
 
 	trainInfo.departs = stations[0].scheduledTime
 	trainInfo.arrives = stations.slice(-1)[0].scheduledTime

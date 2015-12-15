@@ -11,10 +11,10 @@ const Icon = React.createClass({
 	}
 })
 
+const refresh = createAction()
 
 const model = function() {
 
-	const refresh = createAction()
 	refresh.$.plug(Bacon.interval(5000, 0))
 	const $trains = trainsData(refresh.$)
 	refresh.action(0)
@@ -52,4 +52,6 @@ $('document').ready(() => {
 			</div>
 		)
 		.onValue(elem => ReactDOM.render(elem, document.getElementById('content')))
+
+	refresh.action()
 })
