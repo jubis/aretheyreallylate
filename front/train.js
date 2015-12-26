@@ -6,10 +6,21 @@ function getTime(stringTime) {
 }
 
 const Train  = React.createClass({
+	isMapVisible: function() {
+		return this.props.big && !this.props.info.cancelled
+	},
+	componentDidMount: function() { this.initMap() },
+	componentDidUpdate: function() { this.initMap() },
 	initMap: function() {
-		if(this.props.big) {
-			const {prevStation, nextStation} = this.props.info
-			const {latitude: lat, longitude: lng, name} = nextStation ? nextStation : prevStation
+		const currentVersion = this.props.info.version + ' ' + moment().format('HHmm')
+
+		if(this.isMapVisible() && this.lastVersion !== currentVersion) {
+			this.lastVersion = currentVersion
+			console.log('version: ' + currentVersion)
+			console.log('init map')
+
+			const {prevStation, nextStation, currentSectionInfo, hasArrived} = this.props.info
+			const {latitude: lat, longitude: lng, name} = nextStation || prevStation
 			const center = {lat, lng}
 
 			const map = new google.maps.Map($('.map')[0], {
@@ -26,11 +37,12 @@ const Train  = React.createClass({
 
 			if(nextStation && !prevStation) console.log(`next but no prev ${this.props.info}`)
 
-			if(nextStation && prevStation) {
-				const currentSectionCoords  = [
+			if(currentSectionInfo && !hasArrived) {
+				const currentSectionCoords = [
 					{lat: prevStation.latitude, lng: prevStation.longitude},
 					{lat: nextStation.latitude, lng: nextStation.longitude}
-				];
+				]
+
 				const currentSection = new google.maps.Polyline({
 					path: currentSectionCoords,
 					geodesic: true,
@@ -39,6 +51,13 @@ const Train  = React.createClass({
 					strokeWeight: 2,
 					map: map
 				})
+
+				const trainLocation = google.maps.geometry.spherical.interpolate(
+					new google.maps.LatLng(currentSectionCoords[0]),
+					new google.maps.LatLng(currentSectionCoords[1]),
+					Math.min(currentSectionInfo.sectionCompletedPercentage, 1)
+				)
+				next.setPosition(trainLocation)
 
 				const bounds = new google.maps.LatLngBounds(center)
 				bounds.extend(new google.maps.LatLng(prevStation.latitude, prevStation.longitude))
@@ -80,12 +99,15 @@ const Train  = React.createClass({
 			}
 		)
 
-		let nextStation = (!info.hasArrived && info.hasDeparted) ?
-			<p>next: {showStation(info.nextStation)}</p> :
+		let nextStation = (big && !info.hasArrived && info.hasDeparted) ?
+			<p>next: {showStation(info.nextStation)} at {moment(info.nextStation.estimateTime).format('HH:mm')} ({moment(info.nextStation.estimateTime).diff(moment(), 'm')} in mins)</p> :
 			''
-		let arrivedOrNotDeparted = ''
-		if (info.hasArrived) arrivedOrNotDeparted = <p>Arrived to {showStation(info.arrStation)}</p>
-		else if (!info.hasDeparted && !info.cancelled) arrivedOrNotDeparted = <p>Hasn't departed yet</p>
+		let arrivedOrNotDeparted =
+			(info.hasArrived) ?
+				<p>Arrived to {showStation(info.arrStation)}</p> :
+				(!info.hasDeparted && !info.cancelled) ?
+					<p>Hasn't departed yet</p> :
+					<p>On the way</p>
 
 		return (
 			<div className={classes} onClick={() => setSelectedTrain(info)}>
@@ -97,7 +119,7 @@ const Train  = React.createClass({
 				{nextStation}
 				<p className='tight'>{late}</p>
 				{maxLate}
-				{big ? <div className='map' ref={this.initMap}/> : ''}
+				{this.isMapVisible() ? <div className='map'/> : ''}
 			</div>
 		)
 	}

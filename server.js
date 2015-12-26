@@ -15,10 +15,6 @@ let app = express()
 app.use(bodyParser.json())
 app.use(express.static('front'))
 
-app.get('/train', (req, res) => {
-	trains.trainInfoForAll().then(respondJson(res))
-})
-
 app.get('/train/:trainNumber', (req, res) => {
 	let trainNumber = req.params.trainNumber
 
@@ -27,6 +23,10 @@ app.get('/train/:trainNumber', (req, res) => {
 
 app.get('/trainStatus', (req, res) => {
 	trains.trainStatusForAll().then(respondJson(res))
+})
+
+app.get('/check', (req, res) => {
+	trains.checkTrains().then(respondJson(res))
 })
 
 function respondJson(res) {

@@ -1,7 +1,7 @@
 
 const {TrainList} = require('./train-list.js')
 const {TrainView} = require('./train-view.js')
-const {trainsData, createAction} = require('./data.js')
+const {trainsData, singleTrainData, createAction} = require('./data.js')
 
 const Icon = React.createClass({
 	render: function() {
@@ -27,21 +27,29 @@ const model = function() {
 	})
 
 	const closeTrainView = createAction()
+	function toTrainDetails(trainNumber) {
+		return Bacon.once(trainNumber)
+			.merge(Bacon.interval(3000, trainNumber))
+			.takeUntil(closeTrainView.$)
+			.takeUntil($selectedTrain)
+	}
+	const $singleTrainDetails = $selectedTrain
+		.flatMap(({trainNumber}) => toTrainDetails(trainNumber))
+		.flatMap(singleTrainData)
 	const $trainViewModel = Bacon.combineTemplate({
-			train: $selectedTrain,
+			train: $singleTrainDetails,
 			closeView: closeTrainView.action,
 			visible: Bacon.update(false,
 				[closeTrainView.$], (close) => false,
-				[$selectedTrain], (close) => true
+				[$singleTrainDetails], (close) => true
 			)
 		})
 		.map(model => (model.visible) ? model : null)
 
-	return Bacon.update(
-		{},
-		[$trainListModel.changes()], (state, trainList) => ({...state, trainList}),
-		[$trainViewModel.changes()], (state, trainView) => ({...state, trainView})
-	).log('state')
+	return Bacon.combineTemplate({
+		trainList: $trainListModel,
+		trainView: $trainViewModel.changes().merge(Bacon.once(null))
+	}).log('state')
 }
 
 $('document').ready(() => {

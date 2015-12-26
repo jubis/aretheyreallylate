@@ -1,13 +1,25 @@
 'use strict'
 
+function toApiCall($url) {
+	return $url
+		.map(path => {
+			return {type: 'GET', url: path}
+		})
+		.ajax()
+}
+
 module.exports = {
 	trainsData: function(triggerS) {
-		return triggerS
-			.map(() => `/trainStatus`)
-			.map(path => {
-				return {type: 'GET', url: path}
-			})
-			.ajax()
+		return toApiCall(
+			triggerS.map(() => `/trainStatus`)
+		)
+
+	},
+	singleTrainData: function(trainNumber) {
+		return toApiCall(
+			Bacon.once(`/train/${trainNumber}`)
+		)
+
 	},
 	createAction: function(initial) {
 		const bus = new Bacon.Bus()
