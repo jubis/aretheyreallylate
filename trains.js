@@ -98,7 +98,7 @@ Bacon.interval(30*1000, 1).merge(Bacon.once(1))
 		logger.info('Query API')
 		return Bacon.fromPromise(api(`live-trains`))
 	})
-	.map(data => {
+	.flatMap(Bacon.try(data => {
 		logger.info('API query done')
 
 		const trainsData = JSON.parse(data)
@@ -121,7 +121,7 @@ Bacon.interval(30*1000, 1).merge(Bacon.once(1))
 				return group
 			})
 			.sort((group1, group2) => group1.name.localeCompare(group2.name))
-	})
+	}))
 	.doError(error => logger.error(`Train update failed: ${error}`))
 	.onValue((statuses) => trainStatusForAllCache = statuses)
 

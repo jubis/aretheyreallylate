@@ -6,7 +6,9 @@
   "author": "Matias Saarinen (jubis)",
   "license": "ISC",
   "scripts": {
-    "start": "babel-node server.js | bunyan"
+    "start": "babel-node server.js | bunyan",
+    "build": "babel *.js -d dist",
+    "serve": "forever -o log.txt -e err.txt start dist/server.js && tail -fn 0 log.txt err.txt | bunyan"
   },
   "dependencies": {
     "babel-plugin-transform-react-jsx": "^6.0.2",
